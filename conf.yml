@@ -1,0 +1,10 @@
+server:
+    port:
+geo:
+    enabled: True
+    provider: 'MaxmindDB'
+    maxmind:
+        db_path: '/f2b-exporter/db/GeoLite2-City.mmdb'
+f2b:
+    conf: '/etc/fail2ban/jail.local'
+    db: '/var/lib/fail2ban/fail2ban.sqlite3'
