@@ -11,7 +11,7 @@ Default labels are: `jail` and `ip` with their respective values.
 
 More labels can be provided by enabling geoIP annotation. At this point, the maxmind provider adds `city`, `latitude`, and `longitude` in addition the default labels.
 
-A small guide to creating your own geoIP provider can be found in the last section of this README.
+A small guide to creating your own geoIP provider can be found in the [Extensibility](#Extensibility) section of this README.
 
 ## Installation
 
