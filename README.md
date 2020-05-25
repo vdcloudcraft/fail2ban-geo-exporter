@@ -25,7 +25,7 @@ python -m venv .
 pip install -r requirements.txt
 ```
 
-Then create a file called `fail2ban-geo-exporter.service` at `/etc/systemd/system/`
+Create a file called `fail2ban-geo-exporter.service` at `/etc/systemd/system/`
 
 Open that file and paste following content in there:
 
