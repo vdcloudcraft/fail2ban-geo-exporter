@@ -100,6 +100,7 @@ If you wish to implement your own method for annotating your IPs, you need to cr
 
 You need to ensure following requirements are fullfilled:
 - Your module name is a lower case version of your class name. E.g.: Class `FancyProvider`, module `./geoip_providers/fancyprovider.py`
+- Your class has a constructor that accepts a single parameter. This will be the parsed `conf.yml` that will be passed to the class.
 - Your class implements a method `annotate(ip)`, that takes in a single IP as a string and returns a dictionary with all additional labels for Prometheus to use. Do not include the IP itself as a label.
 - Your class implements a method `get_labels()` that returns a list of strings with the label names it's going to provide.
 
