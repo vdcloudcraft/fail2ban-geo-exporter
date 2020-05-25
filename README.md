@@ -106,3 +106,7 @@ You need to ensure following requirements are fullfilled:
 When all that is given, you can just put your class name with[!] capitalization into the configuration under `geo.provider` and enjoy the fruits of your labour.
 
 If you do create another provider class and think other people might find it useful too, I'll gladly review pull requests.
+
+## Grafana dashboard
+
+The file `grafana-dash.json` includes a complete definition to display your banned IPs on a worldmap and count all banned IPs per jail.
