@@ -4,6 +4,10 @@ It's all in the description already. This little program will expose Prometheus 
 
 NOTE: This software assumes your fail2ban jail definitions are all in a single file. Multiple definites under `jail.d/` are currently not supported.
 
+## Disclaimer
+
+This exporter goes deliberately against best practices and ist not suitable for deployments at scale. It's intended to be used in a homelab alike setting and won't even provide any sane metric to alert on. This may change in the future, but it more than likely will not. 
+
 ## Metrics
 
 This exporter provides a single time series named `fail2ban_banned_ip` for each IP in a fail2ban jail.
