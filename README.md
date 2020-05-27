@@ -56,6 +56,7 @@ Now open `conf.yml` and you should see something like this
 
 ```yaml
 server:
+    listen_address:
     port: 
 geo:
     enabled: True
@@ -67,7 +68,7 @@ f2b:
     db: '/var/lib/fail2ban/fail2ban.sqlite3'
 ```
 
-Just plug in the port you want your exporter to be listening on. If you want to enable geotagging, there is only one method at this time and for that you will need to sign up for a free account at https://www.maxmind.com, download their city database and plug the path to the db in `geo.maxmind.db_path`. Their paid tier claims to have increased accuracy and is interchangable with their free database, so that should work as a data source for this exporter as well. At the time of writing I can neither deny, nor confirm these claims.
+Just plug in the port and IPv4 address you want your exporter to be listening on. If you want to enable geotagging, there is only one method at this time and for that you will need to sign up for a free account at https://www.maxmind.com, download their city database and plug the path to the db in `geo.maxmind.db_path`. Their paid tier claims to have increased accuracy and is interchangable with their free database, so that should work as a data source for this exporter as well. At the time of writing I can neither deny, nor confirm these claims.
 
 When that is all done, run following commands and your exporter is running and will survive reboots:
 ```bash
