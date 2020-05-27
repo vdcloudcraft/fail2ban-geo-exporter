@@ -52,7 +52,7 @@
   "gnetId": null,
   "graphTooltip": 0,
   "id": null,
-  "iteration": 1590437176664,
+  "iteration": 1590447281402,
   "links": [],
   "panels": [
     {
@@ -104,7 +104,7 @@
       "repeatDirection": "v",
       "targets": [
         {
-          "expr": "count (fail2ban_banned_ip{jail=\"$jail\"}) by (jail)",
+          "expr": "count (fail2ban_banned_ip{instance=~\"$node:$port\",jail=\"$jail\"}) by (jail)",
           "format": "time_series",
           "instant": true,
           "interval": "",
@@ -177,7 +177,7 @@
       },
       "targets": [
         {
-          "expr": "sum(fail2ban_banned_ip) by (latitude, longitude, city)",
+          "expr": "sum(fail2ban_banned_ip{instance=~\"$node:$port\"}) by (latitude, longitude, city)",
           "format": "table",
           "instant": true,
           "interval": "",
@@ -224,6 +224,50 @@
         "tagsQuery": "",
         "type": "query",
         "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {},
+        "datasource": "${DS_PROMETHEUS}",
+        "definition": "label_values(fail2ban_banned_ip, instance)",
+        "hide": 0,
+        "includeAll": false,
+        "label": "Host",
+        "multi": false,
+        "name": "node",
+        "options": [],
+        "query": "label_values(fail2ban_banned_ip, instance)",
+        "refresh": 1,
+        "regex": "/([^:]+):.*/",
+        "skipUrlSync": false,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
+      },
+      {
+        "allValue": null,
+        "current": {},
+        "datasource": "${DS_PROMETHEUS}",
+        "definition": "label_values(fail2ban_banned_ip, instance)",
+        "hide": 2,
+        "includeAll": false,
+        "label": null,
+        "multi": false,
+        "name": "port",
+        "options": [],
+        "query": "label_values(fail2ban_banned_ip, instance)",
+        "refresh": 1,
+        "regex": "/[^:]+:(.*)/",
+        "skipUrlSync": false,
+        "sort": 0,
+        "tagValuesQuery": "",
+        "tags": [],
+        "tagsQuery": "",
+        "type": "query",
+        "useTags": false
       }
     ]
   },
@@ -247,5 +291,5 @@
   "timezone": "",
   "title": "fail2ban banned locations",
   "uid": "pGlJmeRGk",
-  "version": 18
+  "version": 6
 }
