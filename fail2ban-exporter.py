@@ -81,5 +81,5 @@ if __name__ == '__main__':
     REGISTRY.register(F2bCollector(conf))
 
     app = make_wsgi_app()
-    httpd = make_server('', conf['server']['port'], app)
+    httpd = make_server(conf['server']['listen_address'], conf['server']['port'], app)
     httpd.serve_forever()

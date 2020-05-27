@@ -1,4 +1,5 @@
 server:
+    listen_address:
     port:
 geo:
     enabled: True
