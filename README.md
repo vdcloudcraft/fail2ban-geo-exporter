@@ -90,22 +90,22 @@ You should see a list of metrics when you run `curl http://localhost:[port]/metr
 
 ### As a Docker container
 
-As described in the section before, provide a port and enable/disable geotagging in `conf.yml`
+As described in the section before, provide a port, listen address, and enable/disable geotagging in `conf.yml`
 
-To build the image for Docker run `docker build -t fail2ban-geo-exporter .`
-This will include your configuration in the image, so if you don't mount the config itself into the container, the paths inside it are where you need to mount DBs and jail config.
+Docker images are provided via [Docker Hub](https://hub.docker.com/repository/docker/vdcloudcraft/fail2ban-geo-exporter)
 
-An examplary command to run the container could look like this:
-
+To run the exporter in a Docker container, execute the following command
 ```bash
 docker run -d \
         -v /etc/fail2ban/jail.local:/etc/fail2ban/jail.local:ro \
         -v /var/lib/fail2ban/fail2ban.sqlite3:/var/lib/fail2ban/fail2ban.sqlite3:ro \
-        -v /<path-to-your-db>/GeoLite2-City.mmdb:/f2b-exporter/db/GeoLite2-City.mmdb \
+        -v /<path-to-your-db>/GeoLite2-City.mmdb:/f2b-exporter/db/GeoLite2-City.mmdb:ro \
+        -v /<path-to-your-conf.yml>/conf.yml:/f2b-exporter/conf.yml \
         --name fail2ban-geo-exporter \
         --restart unless-stopped \
-        fail2ban-geo-exporter:latest
+        vdcloudcraft/fail2ban-geo-exporter:latest
 ```
+Make sure that your paths to `jail.local` and `fail2ban.sqlite3` are correct.
 
 ## Extensibility
 
