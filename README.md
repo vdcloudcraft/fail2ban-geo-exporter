@@ -7,6 +7,7 @@ NOTE: This software assumes your fail2ban jail definitions are all in a single f
 ## Disclaimer
 
 This exporter goes deliberately against best practices and ist not suitable for deployments at scale. It's intended to be used in a homelab alike setting and won't even provide any sane metric to alert on. This may change in the future, but it more than likely will not.
+
 By enabling grouping in the `conf.yml`, the growth of label cardinality can be reduced, but this is still far from ideal.
 
 ## Metrics
