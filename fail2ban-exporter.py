@@ -5,6 +5,7 @@ import sqlite3
 from prometheus_client import make_wsgi_app
 from prometheus_client.core import GaugeMetricFamily, REGISTRY
 from wsgiref.simple_server import make_server
+from collections import defaultdict
 
 class Jail:
     def __init__(self, name):
@@ -64,15 +65,44 @@ class F2bCollector(object):
         self.get_jailed_ips()
         self.assign_location()
 
+        if conf['geo']['enable_grouping']:
+            yield self.expose_grouped()
+            yield self.expose_jail_summary()
+        else:
+            yield self.expose_single()
+
+    def expose_single(self):
         metric_labels = ['jail','ip'] + self.extra_labels
-        ip_gauge = GaugeMetricFamily('fail2ban_banned_ip', 'IP banned by fail2ban', labels=metric_labels)
+        gauge = GaugeMetricFamily('fail2ban_banned_ip', 'IP banned by fail2ban', labels=metric_labels)
 
         for jail in self.jails:
             for entry in jail.ip_list:
-                values = [jail.name, entry['ip']] + [entry[x] for x in self.extra_labels]
-                ip_gauge.add_metric(values, 1)
+                values = [jail.name, entry['ip']] + [ entry[x] for x in self.extra_labels ]
+                gauge.add_metric(values, 1)
 
-        yield ip_gauge
+        return gauge
+
+    def expose_grouped(self):
+        gauge = GaugeMetricFamily('fail2ban_location', 'Number of currently banned IPs from this location', labels=self.extra_labels)
+        grouped = defaultdict(int)
+
+        for jail in self.jails:
+            for entry in jail.ip_list:
+                location_key = tuple([ entry[x] for x in self.extra_labels ])
+                grouped[location_key] += 1
+
+        for labels, count in grouped.items():
+            gauge.add_metric(list(labels), count)
+
+        return gauge
+
+    def expose_jail_summary(self):
+        gauge = GaugeMetricFamily('fail2ban_jailed_ips', 'Number of currently banned IPs per jail', labels=['jail'])
+
+        for jail in self.jails:
+            gauge.add_metric([jail.name], len(jail.ip_list))
+
+        return gauge
 
 if __name__ == '__main__':
     with open('conf.yml') as f:

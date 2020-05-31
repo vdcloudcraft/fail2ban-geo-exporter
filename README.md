@@ -6,7 +6,8 @@ NOTE: This software assumes your fail2ban jail definitions are all in a single f
 
 ## Disclaimer
 
-This exporter goes deliberately against best practices and ist not suitable for deployments at scale. It's intended to be used in a homelab alike setting and won't even provide any sane metric to alert on. This may change in the future, but it more than likely will not. 
+This exporter goes deliberately against best practices and ist not suitable for deployments at scale. It's intended to be used in a homelab alike setting and won't even provide any sane metric to alert on. This may change in the future, but it more than likely will not.
+By enabling grouping in the `conf.yml`, the growth of label cardinality can be reduced, but this is still far from ideal.
 
 ## Metrics
 
@@ -14,6 +15,12 @@ This exporter provides a single time series named `fail2ban_banned_ip` for each 
 Default labels are: `jail` and `ip` with their respective values.
 
 More labels can be provided by enabling geoIP annotation. At this point, the maxmind provider adds `city`, `latitude`, and `longitude` in addition the default labels.
+
+If you enable grouping in the `conf.yml`, you will instead receive two sets of metrics and no more data about single IPs. Instead you get a gauge `fail2ban_location` which counts the number of banned IPs per location. The labels are the same as above, just without `jail` and `ip`.
+
+The second metric is `fail2ban_jailed_ips` which is a gauge, that displays all currently banned IPs per jail. `jail` is the only label in this metric.
+
+It's highly recommended to enable grouping, in order to reduce the cardinality of your labels.
 
 A small guide to creating your own geoIP provider can be found in the [Extensibility](#Extensibility) section of this README.
 
@@ -57,10 +64,11 @@ Now open `conf.yml` and you should see something like this
 ```yaml
 server:
     listen_address:
-    port: 
+    port:
 geo:
     enabled: True
     provider: 'MaxmindDB'
+    enable_grouping: False
     maxmind:
         db_path: '/f2b-exporter/db/GeoLite2-City.mmdb'
 f2b:
@@ -71,6 +79,7 @@ f2b:
 Just plug in the port and IPv4 address you want your exporter to be listening on. If you want to enable geotagging, there is only one method at this time and for that you will need to sign up for a free account at https://www.maxmind.com, download their city database and plug the path to the db in `geo.maxmind.db_path`. Their paid tier claims to have increased accuracy and is interchangable with their free database, so that should work as a data source for this exporter as well. At the time of writing I can neither deny, nor confirm these claims.
 
 When that is all done, run following commands and your exporter is running and will survive reboots:
+
 ```bash
 sudo systemctl daemon-reload
 sudo systemctl enable fail2ban-geo-exporter.service
@@ -87,6 +96,7 @@ To build the image for Docker run `docker build -t fail2ban-geo-exporter .`
 This will include your configuration in the image, so if you don't mount the config itself into the container, the paths inside it are where you need to mount DBs and jail config.
 
 An examplary command to run the container could look like this:
+
 ```bash
 docker run -d \
         -v /etc/fail2ban/jail.local:/etc/fail2ban/jail.local:ro \
@@ -104,6 +114,7 @@ Currently there is only one way to geotag IPs and that is with the Maxmind db. B
 If you wish to implement your own method for annotating your IPs, you need to create a Python class and save the module in `./geoip_provider/`
 
 You need to ensure following requirements are fullfilled:
+
 - Your module name is a lower case version of your class name. E.g.: Class `FancyProvider`, module `./geoip_providers/fancyprovider.py`
 - Your class has a constructor that accepts a single parameter. This will be the parsed `conf.yml` that will be passed to the class.
 - Your class implements a method `annotate(ip)`, that takes in a single IP as a string and returns a dictionary with all additional labels for Prometheus to use. Do not include the IP itself as a label.
@@ -111,8 +122,10 @@ You need to ensure following requirements are fullfilled:
 
 When all that is given, you can just put your class name with[!] capitalization into the configuration under `geo.provider` and enjoy the fruits of your labour.
 
+Be aware that the `enable_grouping` setting will use only the labels provided by your class to aggregate locations.
+
 If you do create another provider class and think other people might find it useful too, I'll gladly review pull requests.
 
 ## Grafana dashboard
 
-The file `grafana-dash.json` includes a complete definition to display your banned IPs on a worldmap and count all banned IPs per jail.
+The files `dashboard-*.json` include a complete definition for either grouping configuration to display your banned IPs on a worldmap and count all banned IPs per jail.

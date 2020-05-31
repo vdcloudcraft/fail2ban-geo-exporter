@@ -4,6 +4,7 @@ server:
 geo:
     enabled: True
     provider: 'MaxmindDB'
+    enable_grouping: False
     maxmind:
         db_path: '/f2b-exporter/db/GeoLite2-City.mmdb'
 f2b:
