@@ -73,11 +73,13 @@ geo:
     maxmind:
         db_path: '/f2b-exporter/db/GeoLite2-City.mmdb'
 f2b:
-    conf: '/etc/fail2ban/jail.local'
+    conf_path: '/etc/fail2ban'
     db: '/var/lib/fail2ban/fail2ban.sqlite3'
 ```
 
 Just plug in the port and IPv4 address you want your exporter to be listening on. If you want to enable geotagging, there is only one method at this time and for that you will need to sign up for a free account at https://www.maxmind.com, download their city database and plug the path to the db in `geo.maxmind.db_path`. Their paid tier claims to have increased accuracy and is interchangable with their free database, so that should work as a data source for this exporter as well. At the time of writing I can neither deny, nor confirm these claims.
+
+`f2b.conf_path` assumes default directory structure of fail2ban. So your jails can be defined in `/etc/fail2ban/jail.local` or in `/etc/fail2ban/jail.d/*.local`. Default values defined in `jail.local` (i.e.: bantime) will be picked up and consequently applied to all jails defined under `jail.d`.
 
 When that is all done, run following commands and your exporter is running and will survive reboots:
 
@@ -98,7 +100,7 @@ Docker images are provided via [Docker Hub](https://hub.docker.com/repository/do
 To run the exporter in a Docker container, execute the following command
 ```bash
 docker run -d \
-        -v /etc/fail2ban/jail.local:/etc/fail2ban/jail.local:ro \
+        -v /etc/fail2ban:/etc/fail2ban:ro \
         -v /var/lib/fail2ban/fail2ban.sqlite3:/var/lib/fail2ban/fail2ban.sqlite3:ro \
         -v /<path-to-your-db>/GeoLite2-City.mmdb:/f2b-exporter/db/GeoLite2-City.mmdb:ro \
         -v /<path-to-your-conf.yml>/conf.yml:/f2b-exporter/conf.yml \
