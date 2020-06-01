@@ -6,6 +6,7 @@ from prometheus_client import make_wsgi_app
 from prometheus_client.core import GaugeMetricFamily, REGISTRY
 from wsgiref.simple_server import make_server
 from collections import defaultdict
+from pathlib import Path
 
 class Jail:
     def __init__(self, name):
@@ -17,6 +18,7 @@ class F2bCollector(object):
     def __init__(self, conf):
         self.geo_provider = self._import_provider(conf)
         self.f2b_conf = conf['f2b']['conf']
+        self.f2b_conf_path = conf['f2b']['conf_path']
         self.f2b_db = conf['f2b']['db']
         self.jails = []
         self.extra_labels = sorted(self.geo_provider.get_labels())
@@ -39,7 +41,16 @@ class F2bCollector(object):
         cur = conn.cursor()
 
         config = configparser.ConfigParser()
-        config.read(self.f2b_conf)
+        
+        # Allow both configs for backwards compatibility
+        if not self.f2b_conf_path:
+            config.read(self.f2b_conf)
+        else:
+            config.read('{}/jail.local'.format(self.f2b_conf_path))
+
+        if self.f2b_conf_path:
+            jaild = list(Path('{}/jail.d'.format(self.f2b_conf_path)).glob('*.local'))
+            config.read(jaild)
 
         active_jails = cur.execute('SELECT name FROM jails WHERE enabled = 1').fetchall()
 
