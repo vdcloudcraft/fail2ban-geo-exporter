@@ -17,8 +17,8 @@ class Jail:
 class F2bCollector(object):
     def __init__(self, conf):
         self.geo_provider = self._import_provider(conf)
-        self.f2b_conf = conf['f2b']['conf']
-        self.f2b_conf_path = conf['f2b']['conf_path']
+        self.f2b_conf = conf['f2b'].get('conf','')
+        self.f2b_conf_path = conf['f2b'].get('conf_path','')
         self.f2b_db = conf['f2b']['db']
         self.jails = []
         self.extra_labels = sorted(self.geo_provider.get_labels())
