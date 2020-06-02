@@ -25,11 +25,45 @@ It's highly recommended to enable grouping, in order to reduce the cardinality o
 
 A small guide to creating your own geoIP provider can be found in the [Extensibility](#Extensibility) section of this README.
 
+
+## Configuration
+
+```yaml
+server:
+    listen_address:
+    port:
+geo:
+    enabled: True
+    provider: 'MaxmindDB'
+    enable_grouping: False
+    maxmind:
+        db_path: '/f2b-exporter/db/GeoLite2-City.mmdb'
+f2b:
+    conf_path: '/etc/fail2ban'
+    db: '/var/lib/fail2ban/fail2ban.sqlite3'
+```
+
+Just plug in the port and IPv4 address you want your exporter to be listening on. If you want to enable geotagging, there is only one method at this time and for that you will need to sign up for a free account at https://www.maxmind.com, download their city database and plug the path to the db in `geo.maxmind.db_path`. Their paid tier claims to have increased accuracy and is interchangable with their free database, so that should work as a data source for this exporter as well. At the time of writing I can neither deny, nor confirm these claims.
+
+`f2b.conf_path` assumes default directory structure of fail2ban. So your jails can be defined in `/etc/fail2ban/jail.local` or in `/etc/fail2ban/jail.d/*.local`. Default values defined in `jail.local` (i.e.: bantime) will be picked up and consequently applied to all jails defined under `jail.d`.
+
+Missing entries in the MaxmindDB will be discarded by default. If you want to keep track of missing entries, you can provide default values to be used instead. In your `conf.yml` add a section under `geo.maxmind` like so:
+
+```yaml
+geo:
+    maxmind:
+        on_error:
+            city: 'Atlantis'
+            latitude: '0'
+            longitude: '0'
+```
 ## Installation
+
+### As a systemd service
 
 Pick your favourite working directory and `git clone https://github.com/vdcloudcraft/fail2ban-geo-exporter.git .`
 
-### As a systemd service
+Now run these commands to set up a python virtual environment:
 
 ```bash
 python -m venv .
@@ -60,26 +94,7 @@ WantedBy=multi-user.target
 
 Make sure to replace all four(4) instances of `<path>` in that config with your actual working directory.
 
-Now open `conf.yml` and you should see something like this
-
-```yaml
-server:
-    listen_address:
-    port:
-geo:
-    enabled: True
-    provider: 'MaxmindDB'
-    enable_grouping: False
-    maxmind:
-        db_path: '/f2b-exporter/db/GeoLite2-City.mmdb'
-f2b:
-    conf_path: '/etc/fail2ban'
-    db: '/var/lib/fail2ban/fail2ban.sqlite3'
-```
-
-Just plug in the port and IPv4 address you want your exporter to be listening on. If you want to enable geotagging, there is only one method at this time and for that you will need to sign up for a free account at https://www.maxmind.com, download their city database and plug the path to the db in `geo.maxmind.db_path`. Their paid tier claims to have increased accuracy and is interchangable with their free database, so that should work as a data source for this exporter as well. At the time of writing I can neither deny, nor confirm these claims.
-
-`f2b.conf_path` assumes default directory structure of fail2ban. So your jails can be defined in `/etc/fail2ban/jail.local` or in `/etc/fail2ban/jail.d/*.local`. Default values defined in `jail.local` (i.e.: bantime) will be picked up and consequently applied to all jails defined under `jail.d`.
+Make sure you have a `conf.yml` in your working directory as described in [Configuration](#configuration)
 
 When that is all done, run following commands and your exporter is running and will survive reboots:
 
@@ -93,11 +108,12 @@ You should see a list of metrics when you run `curl http://localhost:[port]/metr
 
 ### As a Docker container
 
-As described in the section before, provide a port, listen address, and enable/disable geotagging in `conf.yml`
+Make sure you have prepared a config as described in [Configuration](#configuration).
 
 Docker images are provided via [Docker Hub](https://hub.docker.com/repository/docker/vdcloudcraft/fail2ban-geo-exporter)
 
 To run the exporter in a Docker container, execute the following command
+
 ```bash
 docker run -d \
         -v /etc/fail2ban:/etc/fail2ban:ro \
@@ -108,6 +124,7 @@ docker run -d \
         --restart unless-stopped \
         vdcloudcraft/fail2ban-geo-exporter:latest
 ```
+
 Make sure that your paths to `jail.local` and `fail2ban.sqlite3` are correct.
 
 ## Extensibility

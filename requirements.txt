@@ -1,5 +1,6 @@
 certifi==2020.4.5.1
 chardet==3.0.4
+configparser==5.0.0
 geoip2==3.0.0
 idna==2.9
 maxminddb==1.5.4
