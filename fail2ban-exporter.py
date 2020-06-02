@@ -88,6 +88,9 @@ class F2bCollector(object):
 
         for jail in self.jails:
             for entry in jail.ip_list:
+                # Skip if GeoProvider.annotate() did not return matching count of labels
+                if len(entry) < len(self.extra_labels) + 1:
+                    continue
                 values = [jail.name, entry['ip']] + [ entry[x] for x in self.extra_labels ]
                 gauge.add_metric(values, 1)
 
@@ -99,6 +102,8 @@ class F2bCollector(object):
 
         for jail in self.jails:
             for entry in jail.ip_list:
+                if not entry:
+                    continue
                 location_key = tuple([ entry[x] for x in self.extra_labels ])
                 grouped[location_key] += 1
 

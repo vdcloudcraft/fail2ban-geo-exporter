@@ -7,7 +7,12 @@ geo:
     enable_grouping: False
     maxmind:
         db_path: '/f2b-exporter/db/GeoLite2-City.mmdb'
+## Uncomment the following section to set default values for IPs that are not in the database
+## Otherwise entry will be discarded
+#       on_error:
+#            city: 'Error'
+#            latitude: '0'
+#            longitude: '0'
 f2b:
     conf_path: '/etc/fail2ban'
     db: '/var/lib/fail2ban/fail2ban.sqlite3'
-    conf: ''
