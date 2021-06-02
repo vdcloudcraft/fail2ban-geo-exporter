@@ -7,4 +7,4 @@ maxminddb==1.5.4
 prometheus-client==0.7.1
 PyYAML==5.3.1
 requests==2.23.0
-urllib3==1.25.9
+urllib3==1.26.5
